@@ -1,0 +1,47 @@
+body{
+	/*position: relative;*/
+}
+.cover{
+	height: 100vh;
+	width: 100vw;
+	max-height: 100%;
+	max-width: 100%;
+	position: relative;
+	flex-direction:column;
+}
+.cover::before{
+	content: "";
+	 position: absolute;
+	 top: 0; left: 0;
+	 width: 100%; height: 100%;
+	 background: lightblue url("train18.jpg") no-repeat scroll center;
+	 background-size: cover;
+	 filter: grayscale(100%);
+}
+.cover::after{
+	content: "";
+	 position: absolute;
+	 top: 0; left: 0;
+	 width: 100%; height: 100%;
+	 background-color: black;
+	 opacity: 0.8;
+}
+.cover-inside{
+	position: relative;
+	z-index: 1;
+	flex-direction: row;	
+}
+.cover, .cover-inside{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.gigantic{
+	width: 150px;
+	height: 150px;
+}
+.padded{
+	padding: 3em;
+}
+h2{
+}
