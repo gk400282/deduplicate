@@ -1,8 +1,12 @@
 import os
 
 from flask import Flask, request, render_template, url_for
+from pymongo import MongoClient
 
 app = Flask(__name__)
+client = MongoClient('localhost', 27017)    #Configure the connection to the database
+db = client.sihdata    #Select the database
+products = db.items #Select the collection
 
 @app.context_processor
 def override_url_for():
@@ -20,4 +24,5 @@ def dated_url_for(endpoint, **values):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    item = products.find_one({'PL Number':11223331})
+    return render_template('index.html', item=item)
