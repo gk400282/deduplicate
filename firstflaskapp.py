@@ -1,71 +1,26 @@
 import os
 
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request, redirect, render_template, url_for
 from pymongo import MongoClient
+from sih import dataframe, flag_maker
+from bson.objectid import ObjectId
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import re
-import nltk
-import string 
-import operator
-from collections import Counter
-import sklearn
-from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import TfidfVectorizer
-from nltk import sent_tokenize, word_tokenize, TweetTokenizer 
-from nltk import word_tokenize
-from nltk.stem import WordNetLemmatizer
-from porter2stemmer import Porter2Stemmer
-from nltk.corpus import wordnet
-from nltk.corpus import stopwords
 
 app = Flask(__name__)
 client = MongoClient('localhost', 27017)    #Configure the connection to the database
 db = client.sihdata    #Select the database
-products = db.items #Select the collection
-stemmer = Porter2Stemmer()
-lemmatizer = WordNetLemmatizer()
-word_tokenizer = word_tokenize
-remove_punctuation_map = dict((ord(char), None) for char in string.punctuation)
+products = db.newdata #Select the collection
 
 list_of_descriptions = []
 list_of_pl = []
 list_of_index = []
-flag = []
-items = list(products.find())
-    
-for item in items:
-    list_of_descriptions.append(item['Description'])
-    list_of_pl.append(item['PL Number'])
-    list_of_index.append(item['_id'])
-
-def get_wordnet_pos(word):
-    tag = nltk.pos_tag([word])[0][1][0].upper()
-    tag_dict = {"J": wordnet.ADJ,
-                "N": wordnet.NOUN,
-                "V": wordnet.VERB,
-                "R": wordnet.ADV}
-
-    return tag_dict.get(tag, wordnet.NOUN)
-def lemmatize(text):
-    return ' '.join([lemmatizer.lemmatize(w, get_wordnet_pos(w)) for w in nltk.word_tokenize(text)])
-
-def stem_tokens(tokens):
-    return [stemmer.stem(item) for item in tokens]    
-    
-def normalize(text):
-    text = lemmatize(text)
-    stop = set(stopwords.words('english'))
-    tokens = stem_tokens(word_tokenizer(text.lower().translate(remove_punctuation_map)))
-    return ' '.join([token for token in tokens if token not in stop])
-
-def cosine_similarity_matrix(list_of_descriptions):
-    
-    vectorizer = TfidfVectorizer(tokenizer=normalize)
-    tfidf = vectorizer.fit_transform(list_of_descriptions)
-    return sklearn.metrics.pairwise.cosine_similarity(tfidf, Y=None, dense_output=True)
+old_items = []
+new_items = []
+deleted_items = []
+similar_descriptions_ids = []
+description_object_list = []
+pl_number_object = {}
+chosen_description_id = ''
 
 @app.context_processor
 def override_url_for():
@@ -80,33 +35,12 @@ def dated_url_for(endpoint, **values):
             values['q'] = int(os.stat(file_path).st_mtime)
     return url_for(endpoint, **values)
 
-cosine_similarity_dataframe = pd.DataFrame(cosine_similarity_matrix(list_of_descriptions))
-cosine_similarity_dataframe.columns = list_of_index
-cosine_similarity_dataframe.index = list_of_index
-sim = cosine_similarity_dataframe
+for item in old_items:
+     list_of_descriptions.append(item['Description'])
+     list_of_pl.append(item['PL Number'])
+     list_of_index.append(item['_id'])
 
-for i in range(len(sim)):
-    flag1 = []
-    temp = sim.sort_values(by = sim.index[i], axis = 1, ascending = False)
-    gtt = []
-    drop_list = []
-    for j in range(len(sim)):      
-        if sim.iloc[i][j] > 0.9 :
-            gtt.append(sim.columns[j])
-            # drop_list.append(j)        
-#     sim = sim.drop(drop_list, axis = 0)
-#     sim = sim.drop(drop_list, axis = 1)
-    #greater_than_threshold(gtt,sim,i)
-    
-    flag1.append((gtt,sim.index[i]))                        
-    flag.append(flag1)
 
-similar_descriptions = list(flag[0][0][0])
-pl_number = flag[0][0][1]
-description_object_list = []
-pl_number_object = products.find_one({'_id':pl_number})
-for description in similar_descriptions:
-    description_object_list.append(products.find_one({'_id':description}))
 
 @app.route('/')
 def index():
@@ -114,11 +48,60 @@ def index():
 
 @app.route('/start')
 def start():
-    return render_template('main.html', description_object_list=description_object_list, pl_number_object=pl_number_object)
+    global old_items
+    global new_items
+    global deleted_items
+    global list_of_descriptions
+    global list_of_pl
+    global list_of_index
+    global similar_descriptions_ids
+    global description_object_list
+    global pl_number_object
+    old_items = list(products.find({'type':'old'}))
+    new_items = list(products.find({'type':'new'}))
+    deleted_items = list(products.find({'type':'deleted'}))
+      
+    for item in old_items:
+        list_of_descriptions.append(item['Description'])
+        list_of_pl.append(item['PL Number'])
+        list_of_index.append(item['_id'])
+
+    sim = dataframe(list_of_descriptions, list_of_index)
+    print(sim)
+    flag= flag_maker(sim)
+    similar_descriptions_ids = list(flag[0][0][0])
+    pl_number = flag[0][0][1]
+    pl_number_object = products.find_one({'_id':pl_number})
+    for description_id in similar_descriptions_ids:
+        description_object_list.append(products.find_one({'_id':description_id}))
+
+    return render_template('main.html', pl_number_object=pl_number_object, description_object_list=description_object_list)
 
 @app.route('/start', methods=['POST'])
 def start_post():
-    selected_id = request.form['selected_description']
-    return selected_id
+    global list_of_descriptions
+    global list_of_pl
+    global list_of_index
+    global description_object_list
+    global pl_number_object
+    global similar_descriptions_ids
+    global chosen_description_id
+    this_plnumber_id = pl_number_object['PL Number']
+    chosen_description_id = request.form['selected_description']
+    list_of_descriptions = []
+    list_of_pl=[]
+    list_of_index=[]
+    description_object_list=[]
 
+    for one in similar_descriptions_ids:
+        products.update({'_id':ObjectId(one)}, {'$set':{'type':'deleted'}})
 
+    products.update({'_id':ObjectId(chosen_description_id)}, {'$set':{'type':'new' }})
+    
+
+    return redirect(url_for('start'))
+
+@app.route('/history')
+def history():
+    deleted_descriptions_object_list = list(products.find({'type':'deleted'}))
+    return render_template('history.html', deleted_descriptions_object_list=deleted_descriptions_object_list)

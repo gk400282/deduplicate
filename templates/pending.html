@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+<title>SIH</title>
+<link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='pendingstyles.css') }}"/>
+</head>
+<body>
+    <div class="cover_row filter">
+        <div class="cover_row-inside">
+            <div class="ui red horizontal label">
+                This PL Number is already present in the database. Please assign a custom PL Number.
+            </div>
+            <div class="">
+                <div class="">
+                    <div class="cover_row-description">
+                        <div class="ui raised segment">
+                            <a class="ui red ribbon label">Description</a>
+                            <span>This is a sample description.</span>
+                        </div>
+                        <div class="pl-custom">
+                            <div class="ui large icon input">
+                                <input type="text" placeholder="Enter custom PL Number">
+                            </div>
+                            <button class="ui right labeled icon button">
+                            <i class="right arrow icon"></i>
+                            Assign PL Number
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+</body>
+</html>

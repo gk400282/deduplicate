@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+<title>HISTORY Page</title>
+<link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='historystyles.css') }}"/>
+</head>
+
+<body bgcolor = 'gray'>
+		
+		<div class="cover filter">
+				<div class="cover-inside">
+					<div class="padded">
+						<h3>Sr. Number</h3>
+						
+					</div>
+					<div class="padded">
+						<h3>PL Number</h3>
+						
+					</div>
+					<div class="padded">
+						<h3>Description</h3>
+						
+					</div>
+				</div>
+				{%for item in deleted_descriptions_object_list%}
+				<div class="cover-inside">
+					<div class="padded">
+						<h5>{{deleted_descriptions_object_list.index(item) + 1}}</h5>
+						
+					</div>
+					<div class="padded">
+						<h5>{{item['PL Number']}}</h5>
+						
+					</div>
+					<div class="padded">
+						<h5>{{item['Description']}}</h5>
+						
+					</div>
+				</div>
+				{%endfor%}
+		</div>
+
+</body>
+
+</html>
