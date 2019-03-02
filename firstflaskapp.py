@@ -9,17 +9,15 @@ import matplotlib.pyplot as plt
 import re
 import nltk
 import string 
-import operator
-from collections import Counter
 import sklearn
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
-from nltk import sent_tokenize, word_tokenize, TweetTokenizer 
-from nltk import word_tokenize
+from nltk import sent_tokenize, word_tokenize 
 from nltk.stem import WordNetLemmatizer
 from porter2stemmer import Porter2Stemmer
 from nltk.corpus import wordnet
 from nltk.corpus import stopwords
+from autocorrect import spell
 
 app = Flask(__name__)
 client = MongoClient('localhost', 27017)    #Configure the connection to the database
@@ -58,7 +56,8 @@ def stem_tokens(tokens):
 def normalize(text):
     text = lemmatize(text)
     stop = set(stopwords.words('english'))
-    tokens = stem_tokens(word_tokenizer(text.lower().translate(remove_punctuation_map)))
+    tokens = word_tokenizer(text.lower().translate(remove_punctuation_map))
+    tokens = stem_tokens([spell(token) for token in tokens])
     return ' '.join([token for token in tokens if token not in stop])
 
 def cosine_similarity_matrix(list_of_descriptions):
