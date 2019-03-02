@@ -32,12 +32,14 @@ remove_punctuation_map = dict((ord(char), None) for char in string.punctuation)
 
 list_of_descriptions = []
 list_of_pl = []
+list_of_index = []
 flag = []
 items = list(products.find())
     
 for item in items:
     list_of_descriptions.append(item['Description'])
     list_of_pl.append(item['PL Number'])
+    list_of_index.append(item['_id'])
 
 def get_wordnet_pos(word):
     tag = nltk.pos_tag([word])[0][1][0].upper()
@@ -79,8 +81,8 @@ def dated_url_for(endpoint, **values):
     return url_for(endpoint, **values)
 
 cosine_similarity_dataframe = pd.DataFrame(cosine_similarity_matrix(list_of_descriptions))
-cosine_similarity_dataframe.columns = list_of_descriptions
-cosine_similarity_dataframe.index = list_of_pl
+cosine_similarity_dataframe.columns = list_of_index
+cosine_similarity_dataframe.index = list_of_index
 sim = cosine_similarity_dataframe
 
 for i in range(len(sim)):
@@ -89,16 +91,22 @@ for i in range(len(sim)):
     gtt = []
     drop_list = []
     for j in range(len(sim)):      
-        if sim.iloc[i][j] > 0.5 :
+        if sim.iloc[i][j] > 0.9 :
             gtt.append(sim.columns[j])
             # drop_list.append(j)        
 #     sim = sim.drop(drop_list, axis = 0)
 #     sim = sim.drop(drop_list, axis = 1)
     #greater_than_threshold(gtt,sim,i)
     
-    flag1.append((gtt,sim.index[i]))
+    flag1.append((gtt,sim.index[i]))                        
     flag.append(flag1)
 
+similar_descriptions = list(flag[0][0][0])
+pl_number = flag[0][0][1]
+description_object_list = []
+pl_number_object = products.find_one({'_id':pl_number})
+for description in similar_descriptions:
+    description_object_list.append(products.find_one({'_id':description}))
 
 @app.route('/')
 def index():
@@ -106,6 +114,11 @@ def index():
 
 @app.route('/start')
 def start():
-    similar_descriptions = list(flag[0][0][0])
-    pl_number = flag[0][0][1]
-    return render_template('main.html', similar_descriptions=similar_descriptions, pl_number=pl_number)
+    return render_template('main.html', description_object_list=description_object_list, pl_number_object=pl_number_object)
+
+@app.route('/start', methods=['POST'])
+def start_post():
+    selected_id = request.form['selected_description']
+    return selected_id
+
+
