@@ -1,1 +1,12 @@
+autocorrect==0.3.0
+fuzzywuzzy==0.17.0
+gensim==2.3.0
+nltk==3.2.4
+numpy==1.16.1
+numpydoc==0.6.0
+pandas==0.23.4
+porter2stemmer==1.0
+python2==1.2
+scikit-learn==0.19.0
+scipy==0.19.1
 
