@@ -7,10 +7,14 @@
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main_styles.css') }}"/>
 </head>
 <body>
-	<h1>{{pl_number}}</h1>
-	{%for description in similar_descriptions %}
-		<span>{{ description }}</span>
+	<form method="POST" action="/start">
+	<h1>{{pl_number_object['PL Number']}}</h1>
+	{%for description_object in description_object_list %}
+		<label> <input type="checkbox" name="selected_description" value="{{ description_object['_id'] }}"> {{ description_object['Description'] }}</label>
 	{% endfor %}
+	<br>
+	<input type="submit" value="Submit">
+	</form>
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 </body>
