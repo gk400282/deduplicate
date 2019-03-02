@@ -1,10 +1,8 @@
-h1{
-	color: white;
+body{
+	/*position: relative;*/
 }
 .cover{
-	height: 100vh;
 	width: 100vw;
-	max-height: 100%;
 	max-width: 100%;
 	position: relative;
 	flex-direction:column;
@@ -26,32 +24,27 @@ h1{
 	 background-color: black;
 	 opacity: 0.8;
 }
+
 .cover-inside{
+	width : 100vw;
 	position: relative;
 	z-index: 1;
-	flex-direction: row;	
+	flex-direction: row;
+	color: black;
+	margin-top:3em;
 }
 .cover, .cover-inside{
 	display: flex;
-	justify-content: center;
-	height: 100vh;
-    align-items: flex-start;
-    width: 100%;
+	align-items: center;
+	justify-content: flex-start;
+	
 }
+
 .padded{
-	padding: 3em;
-	width: 100%;
-}
-.radio_button{
-}
-.radio_button:checked ~ .radio_label{
-	color: cyan;
-}
-.radio_label{
-	color: white;
-}
-.radio_wrapper{
 	display: flex;
+	flex : 1;
+	text-align: center;
+	color: white;
+	padding : 1em;
 	flex-direction: column;
-	align-items: flex-start;
 }
