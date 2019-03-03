@@ -48,3 +48,6 @@ body{
 	padding : 1em;
 	flex-direction: column;
 }
+.ui.item.menu{
+	z-index: 1;
+}

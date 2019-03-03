@@ -10,6 +10,11 @@
 <body bgcolor = 'gray'>
 		
 		<div class="cover filter">
+			<div class="ui three item menu">
+				  <a class="item" href="/">Home</a>
+				  <a class="item" href="/history">History</a>
+				  <a class="item" href="/pending">Pending</a>
+				</div>
 				<div class="cover-inside">
 					<div class="padded">
 						<h3>Sr. Number</h3>
@@ -23,22 +28,32 @@
 						<h3>Description</h3>
 						
 					</div>
-				</div>
-				{%for item in deleted_descriptions_object_list%}
-				<div class="cover-inside">
 					<div class="padded">
-						<h5>{{deleted_descriptions_object_list.index(item) + 1}}</h5>
-						
-					</div>
-					<div class="padded">
-						<h5>{{item['PL Number']}}</h5>
-						
-					</div>
-					<div class="padded">
-						<h5>{{item['Description']}}</h5>
+						<h3>type</h3>
 						
 					</div>
 				</div>
+				{%for item in complete_descriptions_object_list%}
+					{% if item['type'] != 'old': %}
+						<div class="cover-inside">
+							<div class="padded">
+								<h5>{{complete_descriptions_object_list.index(item) + 1}}</h5>
+								
+							</div>
+							<div class="padded">
+								<h5>{{item['PL Number']}}</h5>
+								
+							</div>
+							<div class="padded">
+								<h5>{{item['Description']}}</h5>
+								
+							</div>
+							<div class="padded">
+								<h5>{{item['type']}}</h5>
+								
+							</div>
+						</div>
+					{%endif%}
 				{%endfor%}
 		</div>
 
