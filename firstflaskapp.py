@@ -40,7 +40,30 @@ for item in old_items:
      list_of_pl.append(item['PL Number'])
      list_of_index.append(item['_id'])
 
+def initialize():
+    global list_of_descriptions
+    global list_of_pl
+    global list_of_index
+    global description_object_list
+    global pl_number_object
+    global similar_descriptions_ids
+    global chosen_description_id
+    list_of_descriptions = []
+    list_of_pl=[]
+    list_of_index=[]
+    description_object_list=[]
 
+def pl_duplication(id):
+    global new_items
+    pl_number = products.find_one({'_id':ObjectId(id)})['PL Number']
+    counter = 0
+    for item in new_items:
+        if pl_number == item['PL Number']:
+            counter = counter + 1
+    if counter == 0:
+        return 0
+    else:
+        return 1
 
 @app.route('/')
 def index():
@@ -60,22 +83,39 @@ def start():
     old_items = list(products.find({'type':'old'}))
     new_items = list(products.find({'type':'new'}))
     deleted_items = list(products.find({'type':'deleted'}))
-      
+
+
+    #checking if no old items left to work with
+    if len(old_items) == 0:
+        return("No data left to workon")
+
     for item in old_items:
         list_of_descriptions.append(item['Description'])
         list_of_pl.append(item['PL Number'])
         list_of_index.append(item['_id'])
 
     sim = dataframe(list_of_descriptions, list_of_index)
-    print(sim)
     flag= flag_maker(sim)
     similar_descriptions_ids = list(flag[0][0][0])
     pl_number = flag[0][0][1]
     pl_number_object = products.find_one({'_id':pl_number})
+
+
+    #checking if there is just one unique description
+    if len(similar_descriptions_ids) == 1:
+        initialize()
+        if pl_duplication(pl_number) == 0:
+            products.update({'_id':ObjectId(pl_number)}, {'$set':{'type':'new' }})
+        else:
+            products.update({'_id':ObjectId(pl_number)}, {'$set':{'type':'pending' }})
+        return redirect(url_for('start'))
+
+    #creating a description object list to be used in the rendered html pages
     for description_id in similar_descriptions_ids:
         description_object_list.append(products.find_one({'_id':description_id}))
 
     return render_template('main.html', pl_number_object=pl_number_object, description_object_list=description_object_list)
+
 
 @app.route('/start', methods=['POST'])
 def start_post():
@@ -86,6 +126,9 @@ def start_post():
     global pl_number_object
     global similar_descriptions_ids
     global chosen_description_id
+    global old_items
+    global new_items
+    global deleted_items
     this_plnumber_id = pl_number_object['PL Number']
     chosen_description_id = request.form['selected_description']
     list_of_descriptions = []
@@ -93,6 +136,7 @@ def start_post():
     list_of_index=[]
     description_object_list=[]
 
+    
     for one in similar_descriptions_ids:
         products.update({'_id':ObjectId(one)}, {'$set':{'type':'deleted'}})
 
@@ -105,3 +149,8 @@ def start_post():
 def history():
     deleted_descriptions_object_list = list(products.find({'type':'deleted'}))
     return render_template('history.html', deleted_descriptions_object_list=deleted_descriptions_object_list)
+
+@app.route('/pending')
+def pending():
+    pending_pl_object_list = list(products.find({'type':'pending'}))
+    return render_template('pending.html', pending_pl_object_list=pending_pl_object_list)

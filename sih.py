@@ -62,7 +62,7 @@ def flag_maker(sim):
         gtt = []
         drop_list = []
         for j in range(len(sim)):      
-            if sim.iloc[i][j] > 0.95:
+            if sim.iloc[i][j] > 0.97:
                 gtt.append(sim.columns[j])
                 drop_list.append(j)        
     #     sim = sim.drop(drop_list, axis = 0)
