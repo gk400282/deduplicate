@@ -9,13 +9,18 @@
 <body>
     <div class="cover_row filter">
         <div class="cover_row-inside">
+            <div class="ui three item menu">
+                  <a class="item" href="/">Home</a>
+                  <a class="item" href="/history">History</a>
+                  <a class="item" href="/pending">Pending</a>
+                </div>
             <div class="ui red horizontal label">
                 This PL Number is already present in the database. Please assign a custom PL Number.
             </div>
             
             <div class="column_container">
                 {%for each in pending_pl_object_list%}
-                <form method="POST" action="/pending">
+                <form method="POST" action="/pending/{{ each['_id'] }}">
                     <div class="cover_row-description">
                         <div class="ui raised segment">
                             <a class="ui red ribbon label">Description</a>
@@ -23,9 +28,9 @@
                         </div>
                         <div class="pl-custom">
                             <div class="ui large icon input">
-                                <input type="text" placeholder="Enter custom PL Number">
+                                <input type="text" placeholder="Enter custom PL Number" name="entered_pl">
                             </div>
-                            <button class="ui right labeled icon button" type="submit" name="entered_pl">
+                            <button class="ui right labeled icon button" type="submit">
                             <i class="right arrow icon"></i>
                                 Assign PL Number
                             </button>

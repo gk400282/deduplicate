@@ -147,10 +147,17 @@ def start_post():
 
 @app.route('/history')
 def history():
-    deleted_descriptions_object_list = list(products.find({'type':'deleted'}))
-    return render_template('history.html', deleted_descriptions_object_list=deleted_descriptions_object_list)
+    complete_descriptions_object_list = list(products.find())
+    
+    return render_template('history.html', complete_descriptions_object_list=complete_descriptions_object_list)
 
 @app.route('/pending')
 def pending():
     pending_pl_object_list = list(products.find({'type':'pending'}))
     return render_template('pending.html', pending_pl_object_list=pending_pl_object_list)
+
+@app.route('/pending/<id>', methods=['POST'])
+def pending_post(id):
+    entered_pl = request.form['entered_pl']
+    products.update({'_id':ObjectId(id)}, {'$set':{'PL Number':entered_pl, 'type':'new' }})
+    return redirect(url_for('pending'))
