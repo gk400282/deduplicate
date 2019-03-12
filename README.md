@@ -1,5 +1,5 @@
 # deduplicate
-- App to remove duplication of PL Numbers and Product names, and human errors with the intent to centralize the Railways Database.
+App to remove duplication of PL Numbers and Product names, and human errors with the intent to centralize the Railways Database.
 
 - Setup mongoDB locally
 - Create a new database named sihdata (type "use sihdata" in the the mongo shell)
